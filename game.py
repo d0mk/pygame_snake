@@ -3,6 +3,7 @@ import random
 import time
 import os
 from audio_manager import AudioManager
+from snake import Snake
 
 
 class Game:
@@ -32,18 +33,46 @@ class Game:
         self.screen_heigth = self.cell_size * self.num_of_cells + self.cell_spacing * (self.num_of_cells + 1)
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_heigth))
 
-    
-    def draw(self):
-        self.screen.fill(self.background_color)
-
-        for entity in self.sprites:
-            entity.draw(self.screen)
-
-        pygame.display.flip()
-
 
     def start(self):
-        pass
+        snake_start_x = snake_start_y = self.num_of_cells // 2
+        snake = Snake(snake_start_x, snake_start_y)
+        mouse = self.place_mouse(snake.segments)
+        
+        time_point = time.time()
+
+        while self.running:
+            self.clock.tick(self.FPS)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+
+            # if time.time() - time_point > self.audio_manager.delay:
+            #     time_point = time.time()
+            #     self.audio_manager.play_next()
+
+            if pygame.sprite.collide_rect(snake.head, mouse):
+                self.score += 1
+
+            snake.update(pygame.key.get_pressed())
+            self.draw()
+
+        self.game_over_screen()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+
+    def place_mouse(self, snake_segments):
+        while True:
+            mouse_x = random.randint(0, self.num_of_cells - 1)
+            mouse_y = random.randint(0, self.num_of_cells - 1)
+            if not any(seg.x == mouse_x and seg.y == mouse_y for seg in snake_segments):
+                return Mouse(mouse_x, mouse_y)
 
 
     def game_over_screen(self):
@@ -75,3 +104,12 @@ class Game:
             self.screen.blit(surf, (0, 0))
             pygame.time.delay(10)
             pygame.display.flip()
+
+    
+    def draw(self):
+        self.screen.fill(self.background_color)
+
+        for entity in self.sprites:
+            entity.draw(self.screen)
+
+        pygame.display.flip()
