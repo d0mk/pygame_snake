@@ -35,8 +35,7 @@ class Game:
 
 
     def start(self):
-        snake_start_x = snake_start_y = self.num_of_cells // 2
-        snake = Snake(snake_start_x, snake_start_y)
+        snake = self.create_snake()
         mouse = self.place_mouse(snake.segments)
         
         time_point = time.time()
@@ -65,6 +64,13 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
+
+
+    def create_snake(self):
+        snake_start_x = snake_start_y = self.num_of_cells // 2
+        snake = Snake(snake_start_x, snake_start_y)
+        snake.initialize()
+        return snake
 
 
     def place_mouse(self, snake_segments):
